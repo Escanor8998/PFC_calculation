@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFC Manual Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .file-upload {
+            background: #f8f9fa;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+            max-width: 600px;
+        }
+        
+        .file-upload:hover {
+            border-color: #3498db;
+            background: #e8f4fc;
+        }
+        
+        .file-upload h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .file-upload p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .input-section h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .manual-selection {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fc;
+            border-radius: 8px;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .calculate-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 18px;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+        }
+        
+        .results-section h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .optimal-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .result-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dotted #eee;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .result-value {
+            color: #e74c3c;
+        }
+        
+        .success {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .warning {
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PFC Manual Calculator</h1>
+            <p class="description">Upload a CSV file containing both material and core data. Manually select parameters to calculate and evaluate your design.</p>
+        </header>
+        
+        <section class="upload-section">
+            <div class="file-upload">
+                <h3>CSV Data File</h3>
+                <p>Columns 1-9: Material data (Name, µ, a, b, c, x, y, z, t)<br>
+                   Column 10: Material cost (≥1)<br>
+                   Columns 11-17: Core data (Name, OD, ID, Ht, le, Ae, Ve)<br>
+                   Column 18: Window section (cm²)</p>
+                <input type="file" id="dataFile" accept=".csv">
+                <p class="file-info" id="fileInfo">No file selected</p>
+            </div>
+        </section>
+        
+        <section class="input-section">
+            <h2>Input Parameters</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="current">Current (Irms)</label>
+                    <input type="number" id="current" placeholder="Enter Irms (A)" step="0.1" value="2.5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="currentPP">Peak-to-Peak Current (Ipp)</label>
+                    <input type="number" id="currentPP" placeholder="Enter Ipp (A)" step="0.1" value="5.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="frequency">Frequency (F)</label>
+                    <input type="number" id="frequency" placeholder="Enter frequency (Hz)" value="100000">
+                </div>
+                
+                <div class="input-group">
+                    <label for="wireDia">Wire Diameter (mm)</label>
+                    <input type="number" id="wireDia" placeholder="Enter wire diameter" step="0.01" value="0.5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="wireType">Wire Type</label>
+                    <select id="wireType">
+                        <option value="single">Single Wire</option>
+                        <option value="parallel">Parallel Wires</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="manual-selection">
+                <h3>Manual Component Selection</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="materialSelect">Material</label>
+                        <select id="materialSelect">
+                            <option value="">-- Select Material --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="coreSelect">Core</label>
+                        <select id="coreSelect">
+                            <option value="">-- Select Core --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="turns">Number of Turns (N)</label>
+                        <input type="number" id="turns" placeholder="Enter turns" min="1" max="100" value="20">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="stacks">Number of Stacks</label>
+                        <input type="number" id="stacks" placeholder="Enter stacks" min="1" max="10" value="1">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" id="calculateBtn">Calculate Design</button>
+        </section>
+        
+        <section class="results-section">
+            <h2>Design Results</h2>
+            <div id="noResults">Please upload a CSV file, select components, and enter parameters to see calculation results.</div>
+            
+            <div class="optimal-results" id="optimalResults" style="display: none;">
+                <div class="result-card">
+                    <h3>Basic Parameters</h3>
+                    <div class="result-item">
+                        <span class="result-name">Material:</span>
+                        <span class="result-value" id="optMaterial">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Core:</span>
+                        <span class="result-value" id="optCore">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Turns:</span>
+                        <span class="result-value" id="optTurns">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Wire Diameter:</span>
+                        <span class="result-value" id="optWireDia">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Wire Type:</span>
+                        <span class="result-value" id="optWireType">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Stacks:</span>
+                        <span class="result-value" id="optStack">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Window Fill:</span>
+                        <span class="result-value" id="optWindowFill">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Material Cost:</span>
+                        <span class="result-value" id="optMaterialCost">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Copper Cost:</span>
+                        <span class="result-value" id="optCopperCost">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Total Cost:</span>
+                        <span class="result-value" id="optTotalCost">-</span>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <h3>Electrical Results</h3>
+                    <div class="result-item">
+                        <span class="result-name">LoadL:</span>
+                        <span class="result-value" id="optLoadL">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">NoLoadL:</span>
+                        <span class="result-value" id="optNoLoadL">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Current Density:</span>
+                        <span class="result-value" id="optCurrentDensity">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Copper Loss:</span>
+                        <span class="result-value" id="optCopperLoss">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Core Loss:</span>
+                        <span class="result-value" id="optCoreLoss">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Total Loss:</span>
+                        <span class="result-value" id="optTotalLoss">-</span>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <h3>Dimensions</h3>
+                    <div class="result-item">
+                        <span class="result-name">Length:</span>
+                        <span class="result-value" id="optLength">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Width:</span>
+                        <span class="result-value" id="optWidth">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Height:</span>
+                        <span class="result-value" id="optHeight">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Inductance (AL):</span>
+                        <span class="result-value" id="optAL">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Flux Density (B):</span>
+                        <span class="result-value" id="optB">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="validationResults" style="margin-top: 20px;"></div>
+        </section>
+    </div>
+
+<script>
+    // Variables to store data from CSV file
+    let materialData = [];
+    let coreData = [];
+    
+    // Set default values for copper price and density
+    const DEFAULT_COPPER_PRICE = 9.50; // $/kg
+    const DEFAULT_COPPER_DENSITY = 8.96; // g/cm³
+    
+    // Handle file upload event
+    document.getElementById('dataFile').addEventListener('change', function(e) {
+        handleFileUpload(e.target.files[0]);
+    });
+    
+    // File upload handler
+    function handleFileUpload(file) {
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            const lines = content.split('\n');
+            materialData = [];
+            coreData = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line) {
+                    const values = line.split(',');
+                    
+                    // Extract material data (columns 1-10)
+                    if (values.length >= 10) {
+                        const materialValues = values.slice(0, 10);
+                        materialData.push(materialValues);
+                    }
+                    
+                    // Extract core data (columns 11-18)
+                    if (values.length >= 18) {
+                        const coreValues = values.slice(10, 18);
+                        coreData.push(coreValues);
+                    }
+                }
+            }
+            
+            // Update file info
+            document.getElementById('fileInfo').innerHTML = `<span class="success">Uploaded: ${file.name}</span>`;
+            
+            // Populate material and core dropdowns
+            populateDropdowns();
+        };
+        
+        reader.readAsText(file);
+    }
+    
+    // Populate material and core dropdowns
+    function populateDropdowns() {
+        const materialSelect = document.getElementById('materialSelect');
+        const coreSelect = document.getElementById('coreSelect');
+        
+        // Clear existing options
+        materialSelect.innerHTML = '<option value="">-- Select Material --</option>';
+        coreSelect.innerHTML = '<option value="">-- Select Core --</option>';
+        
+        // Add materials to dropdown
+        materialData.forEach((material, index) => {
+            if (material.length >= 10 && material[0]) {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = material[0];
+                materialSelect.appendChild(option);
+            }
+        });
+        
+        // Add cores to dropdown
+        coreData.forEach((core, index) => {
+            if (core.length >= 8 && core[0]) {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${core[0]} (${core[1]}x${core[2]}x${core[3]})`;
+                coreSelect.appendChild(option);
+            }
+        });
+    }
+    
+    // Handle calculate button click
+    document.getElementById('calculateBtn').addEventListener('click', function() {
+        const Irms = parseFloat(document.getElementById('current').value);
+        const Ipp = parseFloat(document.getElementById('currentPP').value);
+        const frequency = parseFloat(document.getElementById('frequency').value);
+        const wireDia = parseFloat(document.getElementById('wireDia').value);
+        const wireType = document.getElementById('wireType').value;
+        
+        const materialIndex = document.getElementById('materialSelect').value;
+        const coreIndex = document.getElementById('coreSelect').value;
+        const turns = parseInt(document.getElementById('turns').value);
+        const stacks = parseInt(document.getElementById('stacks').value);
+        
+        if (!Irms || !Ipp || !frequency || !wireDia || !materialIndex || !coreIndex || !turns || !stacks) {
+            alert('Please enter all input parameters and select materials/cores');
+            return;
+        }
+        
+        if (materialData.length === 0 || coreData.length === 0) {
+            alert('Please upload a CSV file with both material and core data');
+            return;
+        }
+        
+        // Calculate design
+        const design = calculateDesign(Irms, Ipp, frequency, turns, stacks, wireDia, wireType, 
+                                     DEFAULT_COPPER_PRICE, DEFAULT_COPPER_DENSITY, 
+                                     parseInt(materialIndex), parseInt(coreIndex));
+        
+        // Display results
+        displayResults(design);
+        
+        // Validate design
+        validateDesign(design);
+    });
+    
+    // Function to calculate design
+    function calculateDesign(Irms, Ipp, F, N, stack, wireDia, wireType, copperPrice, copperDensity, materialIndex, coreIndex) {
+        // Get data from uploaded arrays
+        const material = materialData[materialIndex];
+        const core = coreData[coreIndex];
+        
+        // Get values from data
+        const materialName = material[0];
+        const mu = parseFloat(material[1]);
+        const a = parseFloat(material[2]);
+        const b = parseFloat(material[3]);
+        const c_val = parseFloat(material[4]);
+        const x = parseFloat(material[5]);
+        const y = parseFloat(material[6]);
+        const z = parseFloat(material[7]);
+        const t_val = parseFloat(material[8]);
+        const materialCostPerCm3 = parseFloat(material[9]);
+        
+        const coreName = core[0];
+        const OD = parseFloat(core[1]);
+        const ID = parseFloat(core[2]);
+        const Ht = parseFloat(core[3]);
+        const le = parseFloat(core[4]); // cm
+        const Ae = parseFloat(core[5]); // cm²
+        const Ve = parseFloat(core[6]); // cm³
+        const windowSection = parseFloat(core[7]); // cm²
+        
+        // Tạo định dạng core mới: CORE (ODxIDxHt)
+        const coreFormatted = `${coreName} (${OD}x${ID}x${Ht})`;
+        
+        // Calculate effective Ae with stacked cores
+        const effectiveAe = Ae * stack;
+        
+        // Adjust for parallel wires
+        const parallelFactor = wireType === 'parallel' ? 2 : 1;
+        const effectiveWireDia = wireType === 'parallel' ? wireDia * Math.sqrt(2) : wireDia;
+        
+        // Perform calculations with adjusted units
+        const MTL = 4 * effectiveWireDia + OD - ID + Ht * 2 * stack; // mm
+        const wireLength = MTL * N / 1000 + 0.02; // convert to meters
+        const wireArea = Math.PI * Math.pow(wireDia / 2, 2);
+        const DCR = 0.0168 * wireLength / (wireArea * parallelFactor); // Ω
+        
+        const H = 0.4 * Math.PI * N * Irms / (le); // le from cm to mm, result in Oe
+        const percentMu = 100 / (a + b * Math.pow(H, c_val));
+        const AL = 4 * Math.PI * Math.pow(10, -7) * mu * (effectiveAe * 0.0001) / (le * 0.01); // Ae from cm² to m², le from cm to m
+        const noLoadL = AL * Math.pow(N, 2);
+        const loadL = percentMu / 100 * noLoadL;
+        const copperLoss = DCR * Math.pow(Irms, 2);
+        const B = loadL * Ipp / 2 / N / (effectiveAe * 0.0001); // Ae from cm² to m², result in Tesla
+        const coreLoss = (Math.pow(B * 10, x)) * (y * (F / 1000) + z * Math.pow(F / 1000, t_val)) * Ve / 1000 * stack;
+        const L_W = OD + 2 * effectiveWireDia + 1; // mm
+        const height = Ht * stack + 2 * effectiveWireDia + 1; // mm
+        
+        // Calculate current density (A/mm²)
+        const currentDensity = Irms / (wireArea * parallelFactor);
+        
+        // Calculate copper weight and cost
+        const copperVolume = wireLength * Math.PI * Math.pow(wireDia / 2 / 10, 2) * parallelFactor; // cm³
+        const copperWeight = copperVolume * copperDensity; // grams
+        const copperCost = copperWeight * copperPrice / 1000; // convert grams to kg
+        
+        // Calculate material cost (material cost * core volume * stack)
+        const materialCost = materialCostPerCm3 * Ve * stack;
+        
+        // Calculate total cost
+        const totalCost = materialCost + copperCost;
+        
+        // Calculate window fill ratio
+        const wireCrossSection = Math.PI * Math.pow(wireDia / 20, 2); // cm² (wireDia in mm, convert to cm)
+        const totalWireArea = N * wireCrossSection * parallelFactor; // cm²
+        const windowFillRatio = totalWireArea / windowSection;
+        
+        return {
+            material: materialName,
+            core: coreName,
+            coreFormatted: coreFormatted,
+            materialIndex: materialIndex,
+            coreIndex: coreIndex,
+            wireDia: wireDia,
+            wireType: wireType,
+            turns: N,
+            stack: stack,
+            MTL: MTL / 1000, // convert to meters
+            wireLength: wireLength,
+            DCR: DCR,
+            H: H,
+            percentMu: percentMu,
+            AL: AL,
+            noLoadL: noLoadL,
+            loadL: loadL,
+            copperLoss: copperLoss,
+            B: B,
+            coreLoss: coreLoss,
+            L_W: L_W,
+            height: height,
+            totalLoss: copperLoss + coreLoss,
+            currentDensity: currentDensity,
+            materialCost: materialCost,
+            copperCost: copperCost,
+            totalCost: totalCost,
+            windowSection: windowSection,
+            windowFillRatio: windowFillRatio,
+            windowFillValid: windowFillRatio <= 0.4
+        };
+    }
+    
+    // Function to display results
+    function displayResults(design) {
+        document.getElementById('noResults').style.display = 'none';
+        document.getElementById('optimalResults').style.display = 'grid';
+        
+        // Display basic parameters
+        document.getElementById('optMaterial').textContent = design.material;
+        document.getElementById('optCore').textContent = design.coreFormatted;
+        document.getElementById('optTurns').textContent = design.turns;
+        document.getElementById('optWireDia').textContent = design.wireDia + ' mm';
+        document.getElementById('optWireType').textContent = design.wireType === 'parallel' ? 'Parallel Wires' : 'Single Wire';
+        document.getElementById('optStack').textContent = design.stack;
+        document.getElementById('optWindowFill').textContent = (design.windowFillRatio * 100).toFixed(1) + '%';
+        document.getElementById('optMaterialCost').textContent = '$' + design.materialCost.toFixed(2);
+        document.getElementById('optCopperCost').textContent = '$' + design.copperCost.toFixed(2);
+        document.getElementById('optTotalCost').textContent = '$' + design.totalCost.toFixed(2);
+        
+        // Display electrical results
+        document.getElementById('optLoadL').textContent = (design.loadL * 1000000).toFixed(2) + ' µH';
+        document.getElementById('optNoLoadL').textContent = (design.noLoadL * 1000000).toFixed(2) + ' µH';
+        document.getElementById('optCurrentDensity').textContent = design.currentDensity.toFixed(2) + ' A/mm²';
+        document.getElementById('optCopperLoss').textContent = design.copperLoss.toFixed(2) + ' W';
+        document.getElementById('optCoreLoss').textContent = design.coreLoss.toFixed(2) + ' W';
+        document.getElementById('optTotalLoss').textContent = design.totalLoss.toFixed(2) + ' W';
+        
+        // Display dimensions
+        document.getElementById('optLength').textContent = design.L_W.toFixed(1) + ' mm';
+        document.getElementById('optWidth').textContent = design.L_W.toFixed(1) + ' mm';
+        document.getElementById('optHeight').textContent = design.height.toFixed(1) + ' mm';
+        document.getElementById('optAL').textContent = design.AL.toFixed(6) + ' H/turn²';
+        document.getElementById('optB').textContent = design.B.toFixed(4) + ' T';
+    }
+    
+    // Function to validate design
+    function validateDesign(design) {
+        const validationContainer = document.getElementById('validationResults');
+        validationContainer.innerHTML = '';
+        
+        const validationHeader = document.createElement('h3');
+        validationHeader.textContent = 'Design Validation';
+        validationContainer.appendChild(validationHeader);
+        
+        // Check window fill
+        if (!design.windowFillValid) {
+            const windowWarning = document.createElement('div');
+            windowWarning.className = 'error';
+            windowWarning.innerHTML = '⚠️ Warning: Window fill ratio is ' + (design.windowFillRatio * 100).toFixed(1) + 
+                                     '%, which exceeds the recommended 40%. Consider using fewer turns or a larger core.';
+            validationContainer.appendChild(windowWarning);
+        } else {
+            const windowOk = document.createElement('div');
+            windowOk.className = 'success';
+            windowOk.innerHTML = '✓ Window fill ratio is ' + (design.windowFillRatio * 100).toFixed(1) + 
+                               '%, which is within the recommended 40% limit.';
+            validationContainer.appendChild(windowOk);
+        }
+        
+        // Check current density (typical limit is 4-6 A/mm² for transformers/inductors)
+        if (design.currentDensity > 6) {
+            const currentWarning = document.createElement('div');
+            currentWarning.className = 'error';
+            currentWarning.innerHTML = '⚠️ Warning: Current density is ' + design.currentDensity.toFixed(2) + 
+                                     ' A/mm², which exceeds the typical limit of 6 A/mm². Consider using thicker wire or parallel wires.';
+            validationContainer.appendChild(currentWarning);
+        } else if (design.currentDensity > 4) {
+            const currentWarning = document.createElement('div');
+            currentWarning.className = 'warning';
+            currentWarning.innerHTML = '⚠️ Note: Current density is ' + design.currentDensity.toFixed(2) + 
+                                     ' A/mm², which is higher than the typical 4 A/mm² but within the maximum 6 A/mm² limit.';
+            validationContainer.appendChild(currentWarning);
+        } else {
+            const currentOk = document.createElement('div');
+            currentOk.className = 'success';
+            currentOk.innerHTML = '✓ Current density is ' + design.currentDensity.toFixed(2) + 
+                                ' A/mm², which is within the typical 4 A/mm² limit.';
+            validationContainer.appendChild(currentOk);
+        }
+        
+        // Check flux density (typical limit depends on material, but generally < 0.3T for high frequency)
+        if (design.B > 0.3) {
+            const fluxWarning = document.createElement('div');
+            fluxWarning.className = 'error';
+            fluxWarning.innerHTML = '⚠️ Warning: Flux density is ' + design.B.toFixed(4) + 
+                                  ' T, which exceeds the typical limit of 0.3T for high frequency applications. This may cause excessive core losses.';
+            validationContainer.appendChild(fluxWarning);
+        } else if (design.B > 0.2) {
+            const fluxWarning = document.createElement('div');
+            fluxWarning.className = 'warning';
+            fluxWarning.innerHTML = '⚠️ Note: Flux density is ' + design.B.toFixed(4) + 
+                                  ' T, which is higher than the typical 0.2T but within the maximum 0.3T limit.';
+            validationContainer.appendChild(fluxWarning);
+        } else {
+            const fluxOk = document.createElement('div');
+            fluxOk.className = 'success';
+            fluxOk.innerHTML = '✓ Flux density is ' + design.B.toFixed(4) + 
+                             ' T, which is within the typical 0.2T limit.';
+            validationContainer.appendChild(fluxOk);
+        }
+        
+        // Check total losses
+        const lossPerWatt = design.totalLoss / (design.loadL * 1000000 * Math.pow(parseFloat(document.getElementById('current').value), 2));
+        if (lossPerWatt > 0.1) {
+            const lossWarning = document.createElement('div');
+            lossWarning.className = 'warning';
+            lossWarning.innerHTML = 'ℹ️ Total losses are ' + design.totalLoss.toFixed(2) + 
+                                  ' W. Consider if this is acceptable for your application.';
+            validationContainer.appendChild(lossWarning);
+        }
+    }
+</script>
+</body>
+</html>
